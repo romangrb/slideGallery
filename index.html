@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html ng-app="galleryApp">
+
+  <head>
+    <script data-require="jquery@*" data-semver="2.2.0" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.js"></script>
+    <script type="text/javascript" src="jquery.easing.1.3.js"></script>
+ 
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+
+  <body>
+    <div ng-controller='slideViewController'>
+      <div id="container"></div>
+      <br/>
+      <div id="film-viewer" 
+          ng-mousedown="mousedownEv($event)" 
+          ng-mousemove="mousemoveEv($event)" 
+          ng-mouseup="mouseupEv($event)"
+          ng-mouseout="mouseoutEv($event)">
+      </div>
+      
+      <div id="film-progress-line">
+        <div id="film-progress-id"></div>
+      </div>
+      <ul id="film">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li>10</li>
+        <li>11</li>
+        <li>12</li>
+        <li>13</li>
+        <li>14</li>
+        <li>15</li>
+        <li>16</li>
+        <li>17</li>
+        <li>18</li>
+        <li>19</li>
+        <li>20</li>
+        <li>21</li>
+        <li>22</li>
+        <li>23</li>
+        <li>24</li>
+        <li>25</li>
+        <li>26</li>
+        <li>27</li>
+        <li>28</li>
+        <li>29</li>
+        <li>30</li>
+        <li>31</li>
+        <li>32</li>
+        <li>33</li>
+        <li>34</li>
+        <li>35</li>
+      </ul>
+    </div>
+    <script type="text/javascript" src="main_app.js"></script>
+    
+    <script type="text/javascript" src="app_costant_service.js"></script>
+    
+    <script type="text/javascript" src="slide_view_service.js"></script>
+    
+    <script type="text/javascript" src="slide_view_model.js"></script>
+    
+    <script type="text/javascript" src="slide_view_controller.js"></script>
+    
+    
+  </body>
+
+</html>
