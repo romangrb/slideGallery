@@ -6,19 +6,20 @@
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-animate.js"></script>
     <script type="text/javascript" src="jquery.easing.1.3.js"></script>
- 
+    <script type="text/javascript" src="jquery.easing.1.3.js"></script>
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
 
   <body>
-    <div ng-controller='slideViewController'>
+    <div ng-controller='slideViewController' ng-keydown="key($event)">
       <div id="container"></div>
       <br/>
       <div id="film-viewer" 
           ng-mousedown="mousedownEv($event)" 
           ng-mousemove="mousemoveEv($event)" 
           ng-mouseup="mouseupEv($event)"
-          ng-mouseout="mouseoutEv($event)">
+          ng-mouseout="mouseoutEv($event)"
+          >
       </div>
       
       <div id="film-progress-line">

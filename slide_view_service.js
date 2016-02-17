@@ -5,7 +5,7 @@
   
   angular
     .module('galleryApp')
-      .factory('slView', function() {
+      .factory('SlView', function() {
         
        var SlideViewer = {  
         
@@ -41,10 +41,8 @@
    }
         
        PrivProtMeth.prototype = SlideViewer;
-        
-       var SlView = new PrivProtMeth();
        
-       return SlView;
+       return PrivProtMeth;
    
   });
   

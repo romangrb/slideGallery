@@ -11,33 +11,35 @@
       
       initView: function (elFilm, elfilmViewer, elfilmProgressId){
 
-       var arr = [].slice.call(arguments);
-       
-       if(arr.length!==3||!arr.every(this._isPositiveExpr)) return;
-     
-       var film = $(elFilm),
-        filmViewer = $(elfilmViewer),
-        filmProgressId  =  $(elfilmProgressId),
+       //var arr = [].slice.call(arguments);
+    
+       //if(arr.length!==3||!arr.every(this._isPositiveExpr)) return;
+        
+       var film = (elFilm)? $(elFilm) : $(this._film),
+        filmViewer = (elfilmViewer)? $(elfilmViewer) : $(this._filmViewer),
+        filmProgressId  = (elfilmProgressId)? $(elfilmProgressId) : $(this._filmProgressId),
         filmCss = null,   
         filmViewerCss = null,
         fstFrameCss = null,
-        winWidth = window.innerWidth, 
-        winHeight = window.innerHeight,
+        winWidth = window.innerWidth,
+        winHeight =  window.innerHeight,
         propCssHash = [
           'width',
           'top',
           'left'
         ],
         prop = {},
+         
         tagNameFrame = (prop.tagNameFrame)? prop.tagNameFrame: 'LI',
         frameSize = (prop.frame_size)? prop.frame_size : $(film).children(tagNameFrame).size(),
         fstFrame = (prop.fstFrame)? prop.fstFrame : $(film).children('li').first(),
         frameWidth = parseInt($(fstFrame).first().outerWidth()),
         frameCenterPoint = frameWidth/2;
-        
-        filmCss = this._get(film, propCssHash),
-        filmViewerCss = this._get(filmViewer, propCssHash),
+ 
+        filmCss = this._get(film, propCssHash);
+        filmViewerCss = this._get(filmViewer, propCssHash);
         fstFrameCss = this._get(fstFrame, propCssHash);
+        
         filmCss['width'] = $(fstFrame).outerWidth(false)*frameSize,      
            
         filmViewerCss['top'] = filmCss['top'];
@@ -46,10 +48,15 @@
         filmCss['left'] = filmViewerCss['left'];
         filmCss['margin-left'] = -filmCss['width']+filmViewerCss['width'];
         fstFrameCss['margin-left'] =- filmCss['margin-left'];
+         
+        this._film = film;
+        this._filmViewer =  filmViewer;
+        this._filmProgressId  =  filmProgressId; 
                 
         this._set(film, filmCss);
         this._set(filmViewer, filmViewerCss);
         this._set(fstFrame, fstFrameCss);
+        
         // SET GLOBAL VARIABLE //
         constant.WIN_WIDTH = winWidth;
         constant.WIN_HEIGHT = winHeight;
@@ -69,9 +76,14 @@
       
     };
         
-    function privProtMethListView (){
+    function PrivProtMethListView (){
       
-      var TYPE_VAL_INIT = 'px';
+      var those = this,
+        TYPE_VAL_INIT = 'px';
+      
+      this._film = null;
+      this._filmViewer =  null;
+      this._filmProgressId  =  null;
       
       this._get = function(el ,obj){
         return cycle(el, $(el).css(obj), true);
@@ -83,6 +95,10 @@
       this._isPositiveExpr = function(str){
         var exp = /\w+/;
         return exp.test(str);
+      };
+      
+      this.init = function(){
+        those.initView();
       };
       
       function cycle(el, obj, isGet){     
@@ -98,12 +114,12 @@
       
     }
     
-    privProtMethListView.prototype = ListView;
+    PrivProtMethListView.prototype = ListView;
     
-    var ListViewClass = new privProtMethListView();
+    var ListViewClass = new PrivProtMethListView();
     
     ListViewClass.initView("#film", "#film-viewer", "#film-progress-id");
-
+    
     return ListViewClass;
 
       
