@@ -9,60 +9,104 @@
   
      var ListView = {
       
-      initView: function (elFilm, elfilmViewer, elfilmProgressId){
-
-       //var arr = [].slice.call(arguments);
-    
-       //if(arr.length!==3||!arr.every(this._isPositiveExpr)) return;
+      initView: function (elgellaryWindow, elFilm, elfilmViewer, elfilmProgressId, elfilmProgressLine, elfullView){
         
-       var film = (elFilm)? $(elFilm) : $(this._film),
+       var  gellaryWindow = (elgellaryWindow)? $(elgellaryWindow) : $(this._gellaryWindow),
+        fullView  = (elfullView)? $(elfullView) : $(this._fullView),
+        film = (elFilm)? $(elFilm) : $(this._film),
         filmViewer = (elfilmViewer)? $(elfilmViewer) : $(this._filmViewer),
         filmProgressId  = (elfilmProgressId)? $(elfilmProgressId) : $(this._filmProgressId),
-        filmCss = null,   
+        filmProgressLine =  (elfilmProgressLine)? $(elfilmProgressLine) : $(this._filmProgressLine),
+        gellaryWindowCss = null,
+        fullViewCss = {},
+        filmCss = null,
         filmViewerCss = null,
         fstFrameCss = null,
-        winWidth = window.innerWidth,
-        winHeight =  window.innerHeight,
+        defltFrameSize = null,
+        filmProgressLineCss = {},
+        winWidth = null,
+        winHeight = null,
         propCssHash = [
           'width',
           'top',
-          'left'
+          'left',
+          'height'
         ],
-        prop = {},
-         
+        propCssWinHash = [
+          'width',
+          'height'
+        ],
+        bootstrWinSize = {
+          768:40,
+          992:50,
+          1200:80
+        };
+      
+      function setWidHeight(el){
+        var maxSize = '80px',
+          bootstrapCombSize = {
+            768:'40px',
+            992:'50px',
+            1200: maxSize
+           },
+            
+         cycle = function(){
+          for (var key in bootstrapCombSize){
+            if (el<=key) return bootstrapCombSize[key];
+          }
+        };
+        return cycle() || maxSize;
+      }
+        
+      gellaryWindowCss = this._get(gellaryWindow, propCssWinHash);
+      filmCss = this._get(film, propCssHash);
+      filmViewerCss = this._get(filmViewer, propCssHash);
+      
+      winWidth = gellaryWindowCss['width'];
+      winHeight = window.innerHeight;  
+      defltFrameSize = setWidHeight(winWidth);
+      //SET DEFLT SIZE OF FRAMES
+      $(film).children('li')
+        .css({'width':defltFrameSize, 'height':defltFrameSize});  
+        
+      var prop = {},
         tagNameFrame = (prop.tagNameFrame)? prop.tagNameFrame: 'LI',
         frameSize = (prop.frame_size)? prop.frame_size : $(film).children(tagNameFrame).size(),
         fstFrame = (prop.fstFrame)? prop.fstFrame : $(film).children('li').first(),
         frameWidth = parseInt($(fstFrame).first().outerWidth()),
         frameCenterPoint = frameWidth/2;
- 
-        filmCss = this._get(film, propCssHash);
-        filmViewerCss = this._get(filmViewer, propCssHash);
+        
         fstFrameCss = this._get(fstFrame, propCssHash);
         
+        filmProgressLineCss['height'] = parseInt($(filmProgressLine).css('height'));
         filmCss['width'] = $(fstFrame).outerWidth(false)*frameSize,      
-           
-        filmViewerCss['top'] = filmCss['top'];
-        filmViewerCss['left'] = winWidth/2-filmViewerCss['width']/2; 
-        filmCss['width'] =((filmCss['width']+(winWidth-filmViewerCss['width'])/2));
+        filmCss['top'] = winHeight-fstFrameCss['height']*2-filmProgressLineCss['height'];
+        filmViewerCss['top'] = filmCss['top']; 
+        filmViewerCss['height'] = fstFrameCss['height'];
+        filmViewerCss['width'] = (winWidth-constant.ID_EL_LN_FOR_FILMVIEW); //reserve 2px dflt to manipulating, determine current el
+        
+        filmProgressLineCss['top'] = filmCss['top'] - filmProgressLineCss['height'] ;
+        filmViewerCss['left'] = (winWidth/2-filmViewerCss['width']/2)+constant.ID_EL_LN_FOR_FILMVIEW/2; // allight center than 2px dflt px right
+        filmCss['width'] =(filmCss['width']+(winWidth-filmViewerCss['width'])/2)+fstFrameCss['width'];
         filmCss['left'] = filmViewerCss['left'];
+        filmCss['height'] = filmViewerCss['height'];
+        
+        fullViewCss['height'] = filmCss['top'] - filmProgressLineCss['height'];
         filmCss['margin-left'] = -filmCss['width']+filmViewerCss['width'];
         fstFrameCss['margin-left'] =- filmCss['margin-left'];
-         
+        
+        this._gellaryWindow = gellaryWindow;
+        this._fullView  =  fullView;
         this._film = film;
         this._filmViewer =  filmViewer;
-        this._filmProgressId  =  filmProgressId; 
-                
-        this._set(film, filmCss);
-        this._set(filmViewer, filmViewerCss);
-        this._set(fstFrame, fstFrameCss);
-        
+        this._filmProgressId  =  filmProgressId;
+        this._filmProgressLine = filmProgressLine,
         // SET GLOBAL VARIABLE //
+        constant.LEFT_POS_ID = filmViewerCss['left'],
+        constant.TOP_POS_ID = filmViewerCss['top']+filmViewerCss['height']/2;
         constant.WIN_WIDTH = winWidth;
         constant.WIN_HEIGHT = winHeight;
-        constant.POS_ID_CSS = $(filmViewer).css(['top','left','height']),
-        constant.LEFT_POS_ID = parseInt(constant.POS_ID_CSS['left']),
-        constant.TOP_POS_ID = parseInt(constant.POS_ID_CSS['top'])+parseInt(constant.POS_ID_CSS['height'])/2;
+        constant.POS_ID_CSS = filmViewerCss,
         constant.EL_FILM = film; 
         constant.FILM_VIEW = filmViewer;
         constant.FILM_PROGR_ID = filmProgressId;
@@ -72,6 +116,12 @@
         constant.winWidth = frameCenterPoint;
         constant.FRAME_WIDTH = frameWidth;
         constant.FRAME_CENTER_POINT = frameCenterPoint; 
+        // SET CSS TO ELEMENTS //       
+        this._set(fullView, fullViewCss);
+        this._set(film, filmCss);
+        this._set(filmViewer, filmViewerCss);
+        this._set(fstFrame, fstFrameCss);
+        this._set(filmProgressLine, filmProgressLineCss);
       }
       
     };
@@ -82,8 +132,11 @@
         TYPE_VAL_INIT = 'px';
       
       this._film = null;
+      this._gellaryWindow = null;
       this._filmViewer =  null;
       this._filmProgressId  =  null;
+      this._fullView = null;
+      this._filmProgressLine = null,
       
       this._get = function(el ,obj){
         return cycle(el, $(el).css(obj), true);
@@ -117,8 +170,6 @@
     PrivProtMethListView.prototype = ListView;
     
     var ListViewClass = new PrivProtMethListView();
-    
-    ListViewClass.initView("#film", "#film-viewer", "#film-progress-id");
     
     return ListViewClass;
 

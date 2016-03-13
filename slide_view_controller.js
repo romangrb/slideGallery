@@ -7,6 +7,18 @@
     .module('galleryApp')  
       .controller('slideViewController', ['$scope', 'SlView', 'slViewModel', 'constant', function ($scope, SlView, slViewModel, constant) {
       
+    $scope.pageClass = 'page-gallery';
+    
+    (function(){
+      var i = 0;
+      while(i<70){
+        $('#film').append('<li>'+ i +'</li>');
+        i++;
+      }
+    })();
+    
+    slViewModel.initView("#gellary-window", "#film", "#film-viewer", "#film-progress-id", "#film-progress-line", "#full-view");
+      
     var EngineSlide = {
       
       setInitProp : function(hash){
@@ -41,7 +53,9 @@
       this._FST_FRAME = null;
       this._DELAY_ANIMATE_DFLT = null;
       this._MAX_PERC = null;
+      this._EL_FILM = null;
       this._FILM_PROGR_ID = null;
+      this._FRAME_VIEW_WIDTH = null;
       this._FRAME_WIDTH = null;
       this._LEFT_POS_ID = null;
       this._TOP_POS_ID = null;
@@ -54,8 +68,15 @@
       this._MS_IN_SEC = 1000;
       this._DFLT_DELAY_INIT_PROP = 1000;
       this._DFLT_DELAY_FIX = 250;
+      this._FRAME_VIEW_WIDTH_CENTER = null;
       
+      this._SELECTED_EL_STYLE = null;
+      this._SELECTED_PREVEL_STYLE = null;
+      
+      this._prevSelectedEl = null;
+      this._selectedEl = null;
       this._fstElMargLeft = null;
+      this._framesViewed = null;
       
       this._initPosX = this._LEFT_POS_ID;
       this._tDiff = 0;
@@ -85,17 +106,25 @@
         this._FRAME_CENTER_POINT = this.getInitProp('FRAME_CENTER_POINT');
         this._DELAY_FIX_DFLT = this.getInitProp('DELAY_FIX_DFLT');
         this._LEFT_POS_ID_FIX = this._LEFT_POS_ID-this._DFLT_DIFF;
+        this._SELECTED_EL_STYLE = this.getInitProp('SELECTED_EL_STYLE');
+        this._SELECTED_PREVEL_STYLE = this.getInitProp('SELECTED_PREVEL_STYLE');
         
       };
         
       this._setPosView = function (){
         
         this._FRAME_WIDTH = this.getInitProp('FRAME_WIDTH');
+        this._FRAME_VIEW_WIDTH = this.getInitProp('WIN_WIDTH');
+        this._EL_FILM = this.getInitProp('EL_FILM');
         this._DFLT_KB_LN = this._FRAME_WIDTH;
-        this._DEFLT_POS_FRAME_A = parseInt(this.getInitProp('FST_FRAME_CSS')['margin-left']),
-        this._DEFLT_POS_FRAME_B = parseInt(this.getInitProp('FILM_VIEWER_CSS')['left'])-this._FRAME_WIDTH,
-        this._FRAME_DISTANCE = this._DEFLT_POS_FRAME_A - this._DEFLT_POS_FRAME_B,
-        this._crntPos =  parseInt(this.getInitProp('FST_FRAME').css('margin-left'));
+        this._DEFLT_POS_FRAME_A = parseInt(this.getInitProp('FST_FRAME_CSS')['margin-left']);
+        this._DEFLT_POS_FRAME_B = parseInt(this.getInitProp('FILM_VIEWER_CSS')['left'])-this._FRAME_WIDTH;
+        this._FRAME_DISTANCE = this._DEFLT_POS_FRAME_A - this._DEFLT_POS_FRAME_B;
+        this._FRAMES_VIEWED_LN = ~~(this._FRAME_VIEW_WIDTH/this._FRAME_WIDTH);
+        this._crntPos =  parseInt(this.getInitProp('FST_FRAME_CSS')['margin-left']);
+        this._FRAME_VIEW_WIDTH_CENTER = ~~this._FRAME_VIEW_WIDTH/2;
+        
+        this._framesViewed = this._getViewedFrames();
         
         slKbViewCl.setInitPowProp(this._DFLT_KB_LN, this._DFLT_KB_TIME_MAX , this._DFLT_KB_POWER);
         slViewCl.setInitPowProp(this._DFLT_TOUCH_LN, this._DFLT_TOUCH_TIME_MAX, this._DFLT_TOUCH_POWER);
@@ -104,10 +133,66 @@
       
       this._setProgress = function(delay){
         
+        if (this._fstElMargLeft===null) return;
+          
         var delayInt = delay || those._DELAY_ANIMATE_DFLT,
          lnMarg = this._fstElMargLeft,
          currentPosProgr = Math.ceil(this._MAX_PERC-(lnMarg-this._DEFLT_POS_FRAME_B)/this._FRAME_DISTANCE*this._MAX_PERC)+'%';
          this._FILM_PROGR_ID.animate({'width':currentPosProgr}, delayInt, 'easeOutCirc');
+      };
+      
+      this._getViewedFrames = function(curEl){
+        
+        var viewList = [],
+          framesViewed = null,
+          fstElId = (!curEl)? 0 : $(curEl).index(),
+          lastElId = this._FRAMES_VIEWED_LN + fstElId;
+          framesViewed = ($(this._EL_FILM).children('li').slice(fstElId, lastElId));
+          
+          $(framesViewed).each(function(){
+            
+            var x = ~~($(this).offset()['left']),
+              el = [];
+              el.push(x);
+              el.push(this);
+              viewList.push(el);
+          });
+          
+          viewList[0].push(this._FRAME_VIEW_WIDTH_CENTER+viewList[0][0]);
+          this._framesViewed = viewList;
+          
+          return viewList;
+      };
+      
+      function getElemOfSelect (posX, elems){
+        // method that allows search in condition of center
+        var ln = elems.length,
+          i = (elems[0][2]<=posX)? ~~(ln/2):0;
+        
+        for ( ; i<ln; i++ ){
+          if (elems[i][0]>=posX) return elems[i-1];
+        }
+      }
+      
+      function setSelectedStyle (el, prevEl){
+        
+        if (prevEl) $(prevEl).css(those._SELECTED_PREVEL_STYLE);
+            $(el).css(those._SELECTED_EL_STYLE);
+      }
+      
+      this.getSelect = function(x){
+        
+        var fv = this._framesViewed || this._getViewedFrames(),
+          selEl = getElemOfSelect(x, fv) || fv[fv.length-1];
+          
+          this._selectedEl = selEl;
+          
+          setSelectedStyle(this._selectedEl, this._prevSelectedEl); 
+          
+          this._prevSelectedEl = this._selectedEl;
+          
+          //console.log(selEl); go to ajax download this main pc
+        
       };
       
       this._fixFramePosition = function(){
@@ -135,12 +220,16 @@
           posMarg = (!!diffSide)? 
             fstElMargL-Math.abs(this._FRAME_WIDTH-diffPos)+this._FRAME_WIDTH :
             fstElMargL-Math.abs(this._FRAME_WIDTH-(diffPos-this._FRAME_WIDTH))+this._FRAME_WIDTH;
+           
+          currentElem = (!!diffSide)? currentElem : $(currentElem).next().get(0) ;
             
         $(el).
           animate({'margin-left':posMarg+'px'}, 
           this._DFLT_DELAY_FIX, 'easeOutCirc')
             .promise()
             .done(function () {
+              those._getViewedFrames(currentElem);
+              those._setProgress();
               those._isMoving = false;
             });
           
@@ -206,7 +295,6 @@
           .animate(currentPos, this._DELAY_ANIMATE_DFLT, 'easeOutCirc')
           .promise().done(function () {
             those._fixFramePosition();
-            those._setProgress();
           });
       };
       
@@ -238,8 +326,6 @@
             (!!isThrow&&isChangePos)? 
               this._moveSlide(true) :
               this._fixFramePosition();
-              
-          this._setProgress();
           }
          
       };
@@ -328,8 +414,7 @@
       isTouch = false,
       tStart = null,
       tEnd = null;
-      
-      
+    
     document.onkeydown = checkKey;
     document.onkeyup = checkKey;
 
@@ -347,6 +432,10 @@
       }
     
     }
+    
+    $scope.mouseDbClick = function ($event) {
+      SlViewCtrl.getSelect($event.clientX);
+    };
       
     $scope.mousedownEv = function ($event) {
       

@@ -1,0 +1,18 @@
+  <div id="gellary-window" class="col-xs-12" ng-controller="slideViewController" ng-keydown="key($event)">
+      <h1>Gallery page</h1>
+      <a href="#manage" class="btn btn-danger btn-lg">Main page</a>
+      
+      <div id="full-view">Pic Here</div>
+      <div id="film-progress-line">
+        <div id="film-progress-id"></div>
+      </div>
+      <div id="film-viewer" ng-dblclick="mouseDbClick($event)" 
+        ng-mousedown="mousedownEv($event)" 
+        ng-mousemove="mousemoveEv($event)" 
+        ng-mouseup="mouseupEv($event)" 
+        ng-mouseout="mouseoutEv($event)">
+      </div>
+      <ul id="film">
+        
+      </ul>
+  </div>
